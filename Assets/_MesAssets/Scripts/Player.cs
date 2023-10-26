@@ -6,6 +6,9 @@ public class Player : MonoBehaviour
     [Header("Propriétes Joueur")]
     [SerializeField] private float _vitesse = 7f;
     [SerializeField] private GameObject _laserJoueur = default;
+    [SerializeField] private float _cadenceTir = 0.5f;
+
+    private float _peutTire = -1f;
 
     [Header("Limites Jeu")]
     [SerializeField] private float _maxY = 2.5f;
@@ -22,9 +25,11 @@ public class Player : MonoBehaviour
 
     private void TirerLaser()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space) && Time.time > _peutTire)
         {
-            GameObject laser = Instantiate(_laserJoueur, transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
+            Instantiate(_laserJoueur, transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
+            _peutTire = Time.time + _cadenceTir;
+            
         }
     }
 
