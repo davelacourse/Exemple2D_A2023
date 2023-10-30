@@ -3,7 +3,10 @@ using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance;  // Mise en place Singleton
+    
     [Header("Propriétes Joueur")]
+    [SerializeField] private int _viesJoueur = 3;
     [SerializeField] private float _vitesse = 7f;
     [SerializeField] private GameObject _laserJoueur = default;
     [SerializeField] private float _cadenceTir = 0.5f;
@@ -15,6 +18,24 @@ public class Player : MonoBehaviour
     [SerializeField] private float _minY = -3.8f;
     [SerializeField] private float _valeurX = 11.3f;
 
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+        
+    }
+
+    private void Start()
+    {
+        _viesJoueur = 3;
+    }
 
     private void Update()
     {
@@ -27,7 +48,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space) && Time.time > _peutTire)
         {
-            Instantiate(_laserJoueur, transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
+            Instantiate(_laserJoueur, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
             _peutTire = Time.time + _cadenceTir;
             
         }
@@ -54,6 +75,17 @@ public class Player : MonoBehaviour
         else if(transform.position.x <= -_valeurX)
         {
             transform.position = new Vector3(_valeurX, transform.position.y, 0f);
+        }
+    }
+
+    public void DommageJoueur()
+    {
+        _viesJoueur--;
+        UIManager.Instance.ChangeLivesDisplayImage(_viesJoueur);
+        if (_viesJoueur < 1)
+        {
+            Destroy(this.gameObject);
+            SpawnManager.Instance.FinPartie();
         }
     }
 }

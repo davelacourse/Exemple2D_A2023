@@ -16,11 +16,12 @@ public class Ennemi : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Laser")
         {
             // Actions pour collision avec le laser
+            UIManager.Instance.AjouterScore(10);
             Destroy(this.gameObject);
             Destroy(other.gameObject);
         }
@@ -29,6 +30,7 @@ public class Ennemi : MonoBehaviour
             // Actions pour collision avec le joueur
             Destroy(this.gameObject);
             // Reduire la vie du joueur
+            Player.Instance.DommageJoueur();
         }
     }
 

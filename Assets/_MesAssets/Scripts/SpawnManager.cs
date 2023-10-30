@@ -3,8 +3,26 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    public static SpawnManager Instance;
+    
     [SerializeField] private GameObject _ennemiPrefab = default;
     [SerializeField] private GameObject _conteneur = default;
+
+    private bool _arretSpawn = false;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
+    }
 
     private void Start()
     {
@@ -13,13 +31,18 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator EnnemiCoroutine()
     {
-        while (true)
+        while (!_arretSpawn)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(3f);
             Vector3 positionAleatoire = new Vector3(Random.Range(-9, 9), 8f, 0f);
             GameObject nouveauEnnemi = Instantiate(_ennemiPrefab, positionAleatoire, Quaternion.identity);
             nouveauEnnemi.transform.parent = _conteneur.transform;
         }
+    }
+
+    public void FinPartie()
+    {
+        _arretSpawn = true;
     }
 
 }
