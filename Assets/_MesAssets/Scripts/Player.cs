@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,9 +10,13 @@ public class Player : MonoBehaviour
     [SerializeField] private int _viesJoueur = 3;
     [SerializeField] private float _vitesse = 7f;
     [SerializeField] private GameObject _laserJoueur = default;
+    [SerializeField] private GameObject _tripleLaserJoueur = default;
     [SerializeField] private float _cadenceTir = 0.5f;
 
+    private float _cadenceInitiale;
     private float _peutTire = -1f;
+    private bool _tripleLaserActif = false;
+    private GameObject _bouclier;
 
     [Header("Limites Jeu")]
     [SerializeField] private float _maxY = 2.5f;
@@ -35,6 +40,9 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _viesJoueur = 3;
+        _cadenceInitiale = _cadenceTir;
+        _bouclier = transform.GetChild(0).gameObject;
+        _bouclier.SetActive(false);
     }
 
     private void Update()
@@ -48,7 +56,15 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space) && Time.time > _peutTire)
         {
-            Instantiate(_laserJoueur, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
+            if (!_tripleLaserActif)
+            {
+                Instantiate(_laserJoueur, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(_tripleLaserJoueur, transform.position + new Vector3(0f, .5f, 0f), Quaternion.identity);
+            }
+            
             _peutTire = Time.time + _cadenceTir;
             
         }
@@ -80,12 +96,51 @@ public class Player : MonoBehaviour
 
     public void DommageJoueur()
     {
-        _viesJoueur--;
-        UIManager.Instance.ChangeLivesDisplayImage(_viesJoueur);
+        if (!_bouclier.activeSelf)
+        {
+            _viesJoueur--;
+            UIManager.Instance.ChangeLivesDisplayImage(_viesJoueur);
+        }
+        else
+        {
+            _bouclier.SetActive(false);
+        }
+
         if (_viesJoueur < 1)
         {
             Destroy(this.gameObject);
             SpawnManager.Instance.FinPartie();
         }
     }
+
+    public void PowerTripleShot()
+    {
+        _tripleLaserActif = true;
+        StartCoroutine(TSCoroutine());
+    }
+
+    IEnumerator TSCoroutine()
+    {
+        yield return new WaitForSeconds(5f);
+        _tripleLaserActif = false;
+    }
+
+    public void SpeedPowerUp()
+    {
+        _cadenceTir = 0.1f;
+        StartCoroutine(SpeedCoroutine());
+    }
+
+    IEnumerator SpeedCoroutine()
+    {
+        yield return new WaitForSeconds(8f);
+        _cadenceTir = _cadenceInitiale;
+    }
+
+    public void ShieldPowerUp()
+    {
+        _bouclier.SetActive(true);
+    }
+
+
 }
