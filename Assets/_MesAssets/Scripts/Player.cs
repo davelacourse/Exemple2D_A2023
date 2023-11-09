@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int _viesJoueur = 3;
     [SerializeField] private float _vitesse = 7f;
     [SerializeField] private GameObject _laserJoueur = default;
+    [SerializeField] private AudioClip _sonLaser = default;
     [SerializeField] private GameObject _tripleLaserJoueur = default;
     [SerializeField] private float _cadenceTir = 0.5f;
 
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     private float _peutTire = -1f;
     private bool _tripleLaserActif = false;
     private GameObject _bouclier;
+    private Animator _anim;
 
     [Header("Limites Jeu")]
     [SerializeField] private float _maxY = 2.5f;
@@ -43,19 +45,43 @@ public class Player : MonoBehaviour
         _cadenceInitiale = _cadenceTir;
         _bouclier = transform.GetChild(0).gameObject;
         _bouclier.SetActive(false);
+        _anim = GetComponent<Animator>();
     }
 
     private void Update()
     {
         Mouvements();
+        GestionAnim();
         TirerLaser();
 
     }
 
+    private void GestionAnim()
+    {
+        if(Input.GetAxis("Horizontal") < 0)
+        {
+            _anim.SetBool("Turn_Left", true);
+            _anim.SetBool("Turn_Right", false);
+        }
+        else if (Input.GetAxis("Horizontal") > 0)
+        {
+            _anim.SetBool("Turn_Left", false);
+            _anim.SetBool("Turn_Right", true);
+        }
+        else
+        {
+            _anim.SetBool("Turn_Left", false);
+            _anim.SetBool("Turn_Right", false);
+        }
+
+    }
+    
     private void TirerLaser()
     {
+        
         if (Input.GetKey(KeyCode.Space) && Time.time > _peutTire)
         {
+            AudioSource.PlayClipAtPoint(_sonLaser, Camera.main.transform.position, 0.4f);
             if (!_tripleLaserActif)
             {
                 Instantiate(_laserJoueur, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);

@@ -3,6 +3,7 @@ using UnityEngine;
 public class Ennemi : MonoBehaviour
 {
     [SerializeField] private float _vitesseEnnemi = 5f;
+    [SerializeField] private GameObject _prefabExplosion = default;
 
     private void Update()
     {
@@ -22,6 +23,7 @@ public class Ennemi : MonoBehaviour
         {
             // Actions pour collision avec le laser
             UIManager.Instance.AjouterScore(10);
+            Instantiate(_prefabExplosion, transform.position, Quaternion.identity);
             Destroy(this.gameObject);
             Destroy(other.gameObject);
         }
